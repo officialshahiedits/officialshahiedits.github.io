@@ -206,12 +206,15 @@ section{padding:110px 0}
 .lb-frame.sq{height:min(78vh,720px);aspect-ratio:1;max-width:92vw}
 .lb-info{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
 .lb-info h4{font-size:16px;font-weight:700}
-.lb-x{position:fixed;top:18px;right:18px;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-size:22px;cursor:pointer;transition:all .3s}
+.lb-x{position:fixed;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:10;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(8,8,12,.75);backdrop-filter:blur(8px);color:#fff;font-size:22px;cursor:pointer;transition:all .3s}
 .lb-x:hover{background:var(--red);border-color:var(--red);transform:rotate(90deg)}
-.lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font-size:22px;cursor:pointer;transition:all .3s}
-.lb-nav:hover{background:var(--red);border-color:var(--red)}
-.lb-prev{left:18px}.lb-next{right:18px}
-@media (max-width:760px){.lb-nav{top:auto;bottom:18px;transform:none}}
+#lb{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.lb-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:10px;padding:8px;border-radius:999px;background:rgba(8,8,12,.8);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.lb-nav{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:24px;line-height:1;cursor:pointer;transition:all .3s}
+.lb-nav:hover{background:rgba(255,31,61,.25);border-color:var(--red)}
+.lb-close{height:48px;padding:0 22px;border-radius:999px;border:0;background:var(--red);color:#fff;font:inherit;font-size:12px;font-weight:700;letter-spacing:.18em;cursor:pointer;box-shadow:0 0 24px var(--redglow);display:flex;align-items:center;gap:8px;white-space:nowrap;transition:all .3s}
+.lb-close:hover{box-shadow:0 0 40px var(--red)}
+@media (max-width:760px){.lb-x{display:none}.lb-frame.port{height:min(calc(100dvh - 230px),820px)}.lb-frame.sq{height:auto;width:92vw}.lb-info h4{font-size:14px}}
 
 /* about */
 .about-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center}
@@ -511,8 +514,11 @@ footer{border-top:1px solid var(--line);padding:50px 0 40px;margin-top:40px}
 
 <div id="lb" role="dialog" aria-modal="true" aria-label="Video player">
   <button class="lb-x" id="lbX" aria-label="Close">✕</button>
-  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
-  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
+  <div class="lb-bar">
+    <button class="lb-nav" id="lbPrev" aria-label="Previous video">‹</button>
+    <button class="lb-close" id="lbClose" aria-label="Close video">✕ CLOSE</button>
+    <button class="lb-nav" id="lbNext" aria-label="Next video">›</button>
+  </div>
   <div class="lb-box">
     <div class="lb-frame" id="lbFrame"></div>
     <div class="lb-info"><h4 id="lbTitle"></h4><span id="lbCat" class="lb-cat"></span></div>
@@ -693,10 +699,13 @@ function openLB(i){ lbIdx=(i+list.length)%list.length; const p=list[lbIdx];
   const f=$("#lbFrame"); f.className="lb-frame "+(p.r==='l'?'land':p.r==='s'?'sq':'port');
   f.innerHTML=`<video src="videos/${p.v}.mp4" poster="posters/${p.v}.jpg" controls autoplay playsinline controlsList="nodownload"></video>`;
   $("#lbTitle").textContent=p.title; $("#lbCat").textContent=CONFIG.categories[p.cat];
+  if(!$("#lb").classList.contains("open")){ try{history.pushState({lb:1},"")}catch(_){} }
   $("#lb").classList.add("open"); document.body.style.overflow="hidden"; }
-function closeLB(){ $("#lb").classList.remove("open"); $("#lbFrame").innerHTML=""; document.body.style.overflow=""; }
+function hideLB(){ $("#lb").classList.remove("open"); $("#lbFrame").innerHTML=""; document.body.style.overflow=""; }
+function closeLB(){ if(history.state&&history.state.lb){ history.back(); } else hideLB(); }
+addEventListener("popstate",()=>{ if($("#lb").classList.contains("open")) hideLB(); });
 pg.addEventListener("click",e=>{const c=e.target.closest(".proj");if(!c)return;e.preventDefault();openLB(+c.dataset.i);});
-$("#lbX").onclick=closeLB; $("#lbPrev").onclick=()=>openLB(lbIdx-1); $("#lbNext").onclick=()=>openLB(lbIdx+1);
+$("#lbX").onclick=closeLB; $("#lbClose").onclick=closeLB; $("#lbPrev").onclick=()=>openLB(lbIdx-1); $("#lbNext").onclick=()=>openLB(lbIdx+1);
 $("#lb").addEventListener("click",e=>{if(e.target.id==="lb")closeLB();});
 addEventListener("keydown",e=>{if(!$("#lb").classList.contains("open"))return;if(e.key==="Escape")closeLB();if(e.key==="ArrowRight")openLB(lbIdx+1);if(e.key==="ArrowLeft")openLB(lbIdx-1);});
 
@@ -761,6 +770,16 @@ function countUp(el){ const to=+el.dataset.to, d=1800, s=performance.now();
 addEventListener("scroll",()=>$("#nav").classList.toggle("scrolled",scrollY>40));
 $("#burger").onclick=()=>$("#links").classList.toggle("open");
 document.querySelectorAll("#links a").forEach(a=>a.onclick=()=>$("#links").classList.remove("open"));
+// always open from the top: drop any #section in the link and don't restore old scroll
+try{ if("scrollRestoration" in history) history.scrollRestoration="manual"; }catch(_){}
+if(location.hash){ try{history.replaceState(null,"",location.pathname+location.search)}catch(_){} }
+scrollTo(0,0); addEventListener("load",()=>scrollTo(0,0)); addEventListener("pageshow",()=>{ if(!$("#lb").classList.contains("open")) scrollTo(0,0); });
+document.addEventListener("click",e=>{ const a=e.target.closest('a[href^="#"]'); if(!a) return;
+  const id=a.getAttribute("href").slice(1); if(!id) return;
+  const t=id==="top"?null:document.getElementById(id); if(id!=="top"&&!t) return;
+  e.preventDefault(); $("#links").classList.remove("open");
+  if(id==="top") scrollTo({top:0,behavior:"smooth"}); else t.scrollIntoView({behavior:"smooth"});
+});
 
 /* ---------- cursor glow ---------- */
 const cur=$("#cursor"),dot=$("#dot"); let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
