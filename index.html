@@ -209,11 +209,16 @@ section{padding:110px 0}
 .lb-x{position:fixed;top:calc(14px + env(safe-area-inset-top));right:14px;z-index:10;width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(8,8,12,.75);backdrop-filter:blur(8px);color:#fff;font-size:22px;cursor:pointer;transition:all .3s}
 .lb-x:hover{background:var(--red);border-color:var(--red);transform:rotate(90deg)}
 #lb{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
-.lb-bar{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:10px;padding:8px;border-radius:999px;background:rgba(8,8,12,.8);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);box-shadow:0 10px 40px rgba(0,0,0,.6)}
-.lb-nav{width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fff;font-size:24px;line-height:1;cursor:pointer;transition:all .3s}
-.lb-nav:hover{background:rgba(255,31,61,.25);border-color:var(--red)}
-.lb-close{height:48px;padding:0 22px;border-radius:999px;border:0;background:var(--red);color:#fff;font:inherit;font-size:12px;font-weight:700;letter-spacing:.18em;cursor:pointer;box-shadow:0 0 24px var(--redglow);display:flex;align-items:center;gap:8px;white-space:nowrap;transition:all .3s}
-.lb-close:hover{box-shadow:0 0 40px var(--red)}
+.lb-bar{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:22px}
+.lb-glass{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#fff;padding:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.08));
+  border:1px solid rgba(255,255,255,.28);
+  backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(255,255,255,.08),0 8px 28px rgba(0,0,0,.45);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),background .25s,box-shadow .25s}
+.lb-glass svg{width:22px;height:22px;stroke:#fff;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.lb-glass:hover{background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.12));transform:scale(1.06)}
+.lb-glass:active{transform:scale(.92)}
 @media (max-width:760px){.lb-x{display:none}.lb-frame.port{height:min(calc(100dvh - 230px),820px)}.lb-frame.sq{height:auto;width:92vw}.lb-info h4{font-size:14px}}
 
 /* about */
@@ -515,9 +520,9 @@ footer{border-top:1px solid var(--line);padding:50px 0 40px;margin-top:40px}
 <div id="lb" role="dialog" aria-modal="true" aria-label="Video player">
   <button class="lb-x" id="lbX" aria-label="Close">✕</button>
   <div class="lb-bar">
-    <button class="lb-nav" id="lbPrev" aria-label="Previous video">‹</button>
-    <button class="lb-close" id="lbClose" aria-label="Close video">✕ CLOSE</button>
-    <button class="lb-nav" id="lbNext" aria-label="Next video">›</button>
+    <button class="lb-glass" id="lbPrev" aria-label="Previous video"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="lb-glass" id="lbClose" aria-label="Close video"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="lb-glass" id="lbNext" aria-label="Next video"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
   <div class="lb-box">
     <div class="lb-frame" id="lbFrame"></div>
